@@ -26,9 +26,7 @@ export default function Home() {
             </button>
           </div>
         ) : data ? (
-          <QuestionCard questions={data} failCallback={(clock: Clock | undefined, song: Song | undefined) => {
-            clock && clock.stop();
-            song && song.stop();
+          <QuestionCard questions={data} failCallback={() => {
             reset();
             setShowScore(true);
           }} successCallback={() => { setPoints(points + 1) }} gameType="run" />

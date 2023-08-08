@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import useClock from "@/hooks/useClock";
 import { Clock, Question, Song } from "@/types";
 import useSong from "@/hooks/useSong";
+import VolumeControl from "./VolumeControl";
 
 type QuestionCardProps = {
     questions: Question[];
-    failCallback: (clock: Clock | undefined, song: Song | undefined) => void;
+    failCallback: () => void;
     successCallback: () => void;
     gameType: string;
 }
@@ -62,8 +63,10 @@ const QuestionCard = (props: QuestionCardProps) => {
         if (answer === props.questions[index].correctAnswer) {
             props.successCallback();
         } else {
-            props.failCallback(clock, song);
+            props.failCallback();
             if (props.gameType === "run") {
+                clock.stop();
+                song.stop();
                 return;
             }
         }
@@ -72,6 +75,7 @@ const QuestionCard = (props: QuestionCardProps) => {
 
     return (
         <div className="flex flex-col items-center justify-center">
+            <VolumeControl audio={song.audio} />
             {playing ? (
                 <>
                     <p>{clock.time}</p>

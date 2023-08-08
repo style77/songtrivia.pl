@@ -2,7 +2,7 @@
 import { Clock, Song } from '@/types';
 import { useEffect, useState } from 'react';
 
-const useClock = (timeout: number, timeoutCallback: (clock: Clock | undefined, song: Song | undefined) => void) => {
+const useClock = (timeout: number, timeoutCallback: () => void) => {
     const [isRunning, setIsRunning] = useState(false);
     const [time, setTime] = useState(timeout);
 
@@ -10,7 +10,7 @@ const useClock = (timeout: number, timeoutCallback: (clock: Clock | undefined, s
         if (isRunning) {
 
             if (time === 0) {
-                timeoutCallback(undefined, undefined);
+                timeoutCallback();
                 reset();
                 return;
             }
