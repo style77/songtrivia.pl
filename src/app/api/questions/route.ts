@@ -4,6 +4,8 @@ import { Question } from "@/types"
 import Track from "@spotify/web-api-ts-sdk"
 import { NextResponse } from "next/server"
 
+export const revalidate = 0;
+
 /**
  * Shuffles the elements of an array using the Fisher-Yates shuffle algorithm.
  *
