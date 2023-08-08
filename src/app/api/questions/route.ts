@@ -69,6 +69,7 @@ export async function GET() {
     for (const trackItem of tracks) {
         const track = trackItem.track as Track.Track;
 
+        if (!track.preview_url) continue;
         questions.push(...generateQuestionsForTrack(track, tracks));
     }
 

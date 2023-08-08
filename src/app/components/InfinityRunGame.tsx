@@ -1,61 +1,51 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import useClock from "@/hooks/useClock";
 import { Clock, Question, Song } from "@/types";
+import { useCountdown } from "usehooks-ts"; // Import the useCountdown hook
 import useSong from "@/hooks/useSong";
 import VolumeControl from "./VolumeControl";
+import PreGameCountdown from "./PreGameCountdown";
 
-type QuestionCardProps = {
+type InfinityRunGameProps = {
     questions: Question[];
     failCallback: () => void;
     successCallback: () => void;
     gameType: string;
 }
 
-const QuestionCard = (props: QuestionCardProps) => {
-    const clock = useClock(10, props.failCallback);
+const InfinityRunGame = (props: InfinityRunGameProps) => {
+    const [count, { startCountdown, stopCountdown, resetCountdown }] = useCountdown({
+        countStart: 10,
+        intervalMs: 1000,
+    });
     const song = useSong(props.questions[0].previewUrl);
-    const [index, setIndex] = useState(-1);
+    const [index, setIndex] = useState(0);
     const [playing, setPlaying] = useState(false);
 
-    const counter = useClock(3, () => setPlaying(true))
-
     useEffect(() => {
-        counter.start();
-        if (counter.time === 0 && !playing) {
-            setPlaying(true);
-            counter.stop();
+        if (playing) {
             next();
         }
-    }, [counter.time]);
+    }, [playing]);
 
     useEffect(() => {
-        if (index === -1) return;
-
-        // If there is no preview url, skip to the next question
-        if (!props.questions[index].previewUrl) {
-            next();
-            return;
+        if (count <= 0 && playing && index > 0) {
+            props.failCallback();
+            song.stop();
+            stopCountdown();
         }
-
-        if (index >= props.questions.length) {
-            setIndex(0);
-        }
-    }, [index]);
-
-    useEffect(() => {
-        if (song.audio.currentTime >= 10) {
-            next();
-        }
-    }, [song.audio.currentTime]);
+    }, [count]);
 
     const next = () => {
-        clock.stop();
-        setIndex(index + 1);
-        song.setUrl(props.questions[index + 1].previewUrl);
-        clock.reset()
-        clock.start();
+        stopCountdown();
+
+        const nextIndex = index + 1
+        setIndex(nextIndex);
+        song.setUrl(props.questions[nextIndex].previewUrl);
+
+        resetCountdown();
+        startCountdown();
         song.play();
     }
 
@@ -65,7 +55,7 @@ const QuestionCard = (props: QuestionCardProps) => {
         } else {
             props.failCallback();
             if (props.gameType === "run") {
-                clock.stop();
+                stopCountdown();
                 song.stop();
                 return;
             }
@@ -78,7 +68,7 @@ const QuestionCard = (props: QuestionCardProps) => {
             <VolumeControl audio={song.audio} />
             {playing ? (
                 <>
-                    <p>{clock.time}</p>
+                    <p>{count}</p>
                     <p>{props.questions[index].question}</p>
                     <div className="flex flex-row gap-4 items-center justify-center">
                         {props.questions[index].answers.map((answer, i) => (
@@ -91,10 +81,12 @@ const QuestionCard = (props: QuestionCardProps) => {
                     </div>
                 </>
             ) : (
-                <p>Starting in {counter.time}</p>
+                <PreGameCountdown startGame={() => {
+                    setPlaying(true);
+                }} />
             )}
         </div>
     )
 }
 
-export default QuestionCard;
+export default InfinityRunGame;
