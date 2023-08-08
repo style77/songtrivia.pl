@@ -72,6 +72,8 @@ export async function GET() {
 
     const res = NextResponse.json(
         questions
-    ).headers.set('Cache-Control', 'no-store')
+    )
+    res.headers.set('Cache-Control', 'no-store')
+    
     return res
 }
