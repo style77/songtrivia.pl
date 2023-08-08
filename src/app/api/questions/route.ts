@@ -70,7 +70,8 @@ export async function GET() {
         questions.push(...generateQuestionsForTrack(track, tracks));
     }
 
-    return NextResponse.json(
+    const res = NextResponse.json(
         questions
-    )
+    ).headers.set('Cache-Control', 'no-store')
+    return res
 }
