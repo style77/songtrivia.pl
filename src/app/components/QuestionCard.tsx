@@ -63,6 +63,9 @@ const QuestionCard = (props: QuestionCardProps) => {
             props.successCallback();
         } else {
             props.failCallback(clock, song);
+            if (props.gameType === "run") {
+                return;
+            }
         }
         next();
     }
